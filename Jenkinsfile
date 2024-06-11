@@ -14,7 +14,10 @@ pipeline {
     stages {
         stage('test') {
             steps {
-                sh 'echo testing backend project'
+                sh """
+                    npm install
+                    ls -ltr
+                """
             }
         }
         

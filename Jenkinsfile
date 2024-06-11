@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label 'AGENT-1'
+        label 'AGENT-1' 
     }
     options {
         timeout(time: 30, unit: 'MINUTES')
@@ -8,15 +8,24 @@ pipeline {
         ansiColor('xterm')
     }
     environment {
-        DEPLOY_TO = 'Production'
-        GREETING = 'Good Morning'
+        def appVersion = '' //declare global variable here so that this can be used across all stages
     }
     stages {
-        stage('test') {
+        stage('read the version') {
+            steps {
+                script {
+                    def packageJson = readJSON file : 'package.json'
+                    def appVersion = packageJson.version
+                    echo "application version --1 : $appVersion"
+                }
+            }
+        }
+        stage('install dependencies') {
             steps {
                 sh """
                     npm install
                     ls -ltr
+                    echo "application version --1 : $appVersion"
                 """
             }
         }

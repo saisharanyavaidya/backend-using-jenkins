@@ -65,7 +65,7 @@ pipeline {
                     def params = [
                         string(name: 'appVersion', value: "${appVersion}") //these params will be used in backend-deploy-using-jenkins project
                     ]
-                    build job: 'backend-deploy-using-jenkins', parameters: params, wait: false // this will call deploy project
+                    build job: 'backend-deploy', parameters: params, wait: false // this will call deploy project
                 }
             }
         }

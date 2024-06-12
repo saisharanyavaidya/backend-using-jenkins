@@ -59,7 +59,16 @@ pipeline {
                 }
             }
         }
-        
+        stage('Deploy'){
+            steps{
+                script{
+                    def params = [
+                        string(name: 'appVersion', value: "${appVersion}") //these params will be used in backend-deploy-using-jenkins project
+                    ]
+                    build job: 'backend-deploy', parameters: params, wait: false
+                }
+            }
+        }
     }
 
     post {

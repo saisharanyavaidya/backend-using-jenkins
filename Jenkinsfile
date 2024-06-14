@@ -9,7 +9,7 @@ pipeline {
     }
     environment {
         def appVersion = '' //declare global variable here so that this can be used across all stages
-        def nexusUrl = 'nexus.avyan.site:8081'
+        def nexusUrl = 'nexus.avyan.site:8081' // this has nexus private id address.. jenkins-agent instance connects to Nexus instance using private ip 
     }
     stages {
         stage('read the version') {
@@ -45,14 +45,14 @@ pipeline {
                         nexusVersion: 'nexus3',
                         protocol: 'http',
                         nexusUrl: "${nexusUrl}",
-                        groupId: 'com.expense',
-                        version: "${appVersion}",
-                        repository: "backend",
-                        credentialsId: 'nexus-auth',
+                        groupId: 'com.expense', // create this group id folder
+                        version: "${appVersion}", // create folder with this version inside artifact id folder and store artifact there
+                        repository: "backend", // store artifact in this repo created manually in Nexus console
+                        credentialsId: 'nexus-auth', // created credentials in Jenkins console to access Nexus from Jenkins-agent
                         artifacts: [
-                            [artifactId: "backend" ,
+                            [artifactId: "backend" , // create this artifact id folder inside group id folder
                             classifier: '',
-                            file: "backend-" + "${appVersion}" + '.zip',
+                            file: "backend-" + "${appVersion}" + '.zip', // artifact file name to be stored
                             type: 'zip']
                         ]
                     )
@@ -65,7 +65,8 @@ pipeline {
                     def params = [
                         string(name: 'appVersion', value: "${appVersion}") //these params will be used in backend-deploy-using-jenkins project
                     ]
-                    build job: 'backend-deploy', parameters: params, wait: false // this will call deploy project
+                    build job: 'backend-deploy', parameters: params, wait: false // this will call backend-deploy pipeline created in jenkins for deployment which has backend-deploy-using-jenkins projec git url
+                    // you can keep wait = true here if you want CI job to fail if deploy failed 
                 }
             }
         }

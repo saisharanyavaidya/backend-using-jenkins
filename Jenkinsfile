@@ -11,6 +11,9 @@ pipeline {
         def appVersion = '' //declare global variable here so that this can be used across all stages
         def nexusUrl = 'nexus.avyan.site:8081' // this has nexus private id address.. jenkins-agent instance connects to Nexus instance using private ip 
     }
+    parameters{
+        booleanParam(name: 'deploy', defaultValue: false, description: 'Toggle this value')
+    }
     stages {
         stage('read the version') {
             steps {
@@ -46,9 +49,16 @@ pipeline {
                 script {
                     withSonarQubeEnv('sonar') { //referring sonar server
                         sh "${scannerHome}/bin/sonar-scanner"
-                        //other properties are added in sonar-project.properties file
+                        //other properties are added in sonar-project.properties file..  Sonarscanner by default searches for file with name sonar-project.properties in workspace and uses it, so we need not mention it seperately
                     }
                 }
+            }
+        }
+        stage("Quality Gate") { // By this code, jenkins-agent will wait for response from sonarqube server after report analysis
+            steps {
+              timeout(time: 30, unit: 'MINUTES') {
+                waitForQualityGate abortPipeline: true
+              }
             }
         }
         stage('Nexus Artifact Upload'){
@@ -73,6 +83,11 @@ pipeline {
             }
         }
         stage('Deploy'){
+            when{
+                expression{
+                    params.deploy // deploy section will be executed only if yes is selected in deploy parameters
+                }
+            }
             steps{
                 script{
                     def params = [
